@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miso Ramen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #d9d6cf;
+    --paper: #fffdf7;
+    --ink: #181816;
+    --dim: #77736a;
+    --red: #e2231a;
+    --green: #2b7a4b;
+    --amber: #ffb000;
+    --machine: #1c1c1a;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --black: "Archivo Black", "Archivo", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.5;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 36px 16px 80px; }
+
+  /* ---------- title ---------- */
+  .title { position: relative; padding: 8px 0 28px; }
+  .title h1 {
+    font-family: var(--black); font-weight: 400;
+    font-size: clamp(52px, 17vw, 108px); line-height: .86;
+    letter-spacing: -.035em; margin: 0; text-transform: uppercase;
+  }
+  .title h1 span { display: block; }
+  .title h1 .o { color: var(--red); }
+  .hanko {
+    position: absolute; right: 2px; top: 6px;
+    width: 74px; height: 74px; border-radius: 50%;
+    border: 3px solid var(--red); color: var(--red);
+    display: grid; place-items: center;
+    font-family: var(--black); font-size: 30px; line-height: 1;
+    transform: rotate(-9deg); letter-spacing: -.05em;
+    mix-blend-mode: multiply;
+  }
+  .hanko::after {
+    content: ""; position: absolute; inset: 4px; border: 1px solid var(--red); border-radius: 50%;
+  }
+  .tag {
+    margin-top: 18px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--dim);
+  }
+
+  /* ---------- ticket machine ---------- */
+  .machine {
+    background: var(--machine); color: #eee; border-radius: 16px;
+    padding: 18px 18px 22px;
+    box-shadow: 0 2px 0 #000, 0 10px 0 -2px #0c0c0b, 0 16px 24px -6px rgba(0,0,0,.35);
+  }
+  .machine-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: #8d8a80; margin-bottom: 12px;
+  }
+  .screen {
+    background: #0a0a09; border: 2px solid #000; border-radius: 6px;
+    padding: 12px 16px; margin-bottom: 18px;
+    font-family: var(--mono); color: var(--amber);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    text-shadow: 0 0 8px rgba(255,176,0,.45);
+  }
+  .screen .big { font-size: 34px; font-weight: 700; line-height: 1; }
+  .screen .lbl { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+  .screen .right { text-align: right; font-size: 13px; letter-spacing: .06em; }
+
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; margin-top: 12px; }
+  .row .name { font-family: var(--black); font-size: 22px; line-height: 1.05; text-transform: uppercase; }
+  .row .name small { display: block; font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .08em; color: #8d8a80; margin-top: 3px; }
+  .row .name i { font-style: normal; font-family: var(--sans); font-weight: 700; }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .count {
+    min-width: 44px; text-align: center; font-family: var(--mono); font-weight: 700; font-size: 26px;
+    color: var(--amber);
+  }
+  .btn {
+    width: 54px; height: 54px; border: 0; border-radius: 8px; cursor: pointer;
+    font-family: var(--black); font-size: 26px; color: #fff; line-height: 1;
+    position: relative; top: 0;
+    background: var(--c); box-shadow: 0 5px 0 var(--cd), 0 7px 8px rgba(0,0,0,.4);
+    transition: top .05s, box-shadow .05s;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  }
+  .btn:active { top: 4px; box-shadow: 0 1px 0 var(--cd), 0 2px 4px rgba(0,0,0,.4); }
+  .btn.red { --c: var(--red); --cd: #8f130d; }
+  .btn.green { --c: var(--green); --cd: #174a2c; }
+  .btn.minus { --c: #55534c; --cd: #2b2a26; }
+
+  /* ---------- receipt ---------- */
+  .receipt-box { margin-top: 44px; position: relative; }
+  .receipt {
+    position: relative; background: var(--paper);
+    padding: 26px 22px 30px; font-family: var(--mono); font-size: 14px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.08);
+  }
+  .receipt::before, .receipt::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 8px;
+    background-size: 16px 8px; background-repeat: repeat-x;
+  }
+  .receipt::before { top: -7px; background-image: radial-gradient(circle at 8px 8px, var(--paper) 0 7px, transparent 7.5px); }
+  .receipt::after { bottom: -7px; background-image: radial-gradient(circle at 8px 0, var(--paper) 0 7px, transparent 7.5px); }
+  .r-head { text-align: center; padding-bottom: 14px; border-bottom: 2px dashed var(--ink); margin-bottom: 4px; }
+  .r-head b { font-family: var(--black); font-size: 22px; letter-spacing: .02em; font-weight: 400; display: block; text-transform: uppercase; }
+  .r-head span { font-size: 11px; letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
+  .sec { margin-top: 18px; }
+  .sec h3 {
+    margin: 0 0 6px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sec h3::after { content: ""; flex: 1; border-top: 1px solid var(--ink); }
+  .chip { display: inline-block; width: 10px; height: 10px; }
+  .chip.c { background: var(--red); } .chip.v { background: var(--green); border-radius: 50%; }
+  .item { display: flex; align-items: baseline; gap: 6px; padding: 3px 0; }
+  .item .n { }
+  .item .n em { font-style: normal; color: var(--dim); font-size: 12px; }
+  .item .lead { flex: 1; border-bottom: 1px dotted #9a968b; transform: translateY(-3px); min-width: 10px; }
+  .item .q { font-weight: 700; white-space: nowrap; }
+  .r-foot { margin-top: 22px; padding-top: 12px; border-top: 2px dashed var(--ink); display: flex; justify-content: space-between; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .barcode {
+    margin-top: 14px; height: 34px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 13px);
+    opacity: .85;
+  }
+
+  /* ---------- method ---------- */
+  h2 {
+    font-family: var(--black); font-weight: 400; text-transform: uppercase;
+    font-size: 34px; letter-spacing: -.02em; line-height: 1; margin: 64px 0 6px;
+  }
+  .hint { font-family: var(--mono); font-size: 12px; color: var(--dim); margin: 0 0 18px; letter-spacing: .04em; }
+  ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s; display: grid; grid-template-columns: 52px 1fr; gap: 14px;
+    padding: 16px 0; border-top: 2px solid var(--ink); cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  ol.steps li:last-child { border-bottom: 2px solid var(--ink); }
+  ol.steps li[hidden] { display: none; }
+  .num {
+    width: 52px; height: 52px; background: var(--ink); color: var(--bg);
+    font-family: var(--black); font-size: 26px; display: grid; place-items: center;
+  }
+  .num::before { content: counter(s); }
+  .step-body h4 {
+    margin: 0 0 4px; font-family: var(--black); font-weight: 400; text-transform: uppercase;
+    font-size: 19px; letter-spacing: -.005em;
+  }
+  .step-body p { margin: 0; font-size: 15.5px; }
+  .step-body p + p { margin-top: 6px; }
+  .mins { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; background: var(--amber); padding: 2px 8px; }
+  .who { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 1px 6px; color: #fff; margin-right: 4px; }
+  .who.c { background: var(--red); } .who.v { background: var(--green); }
+  ol.steps li.done .num { background: transparent; color: var(--dim); box-shadow: inset 0 0 0 2px var(--dim); }
+  ol.steps li.done .step-body { opacity: .45; }
+  ol.steps li.done h4 { text-decoration: line-through; text-decoration-thickness: 3px; }
+
+  .memo { margin-top: 56px; background: var(--amber); padding: 20px 22px; }
+  .memo b { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .memo ul { margin: 0; padding-left: 18px; }
+  .memo li { margin: 5px 0; font-size: 15px; }
+
+  .empty { font-family: var(--mono); font-size: 13px; color: var(--dim); padding: 10px 0; }
+
+  @media print {
+    body { background: #fff; }
+    .machine, .hint { display: none; }
+    .wrap { padding: 0; }
+    .receipt-box { margin-top: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="title">
+    <h1><span>Miso</span><span>Ram<span class="o" style="display:inline">e</span>n</span></h1>
+    <div class="hanko">味噌</div>
+    <div class="tag">One broth &middot; two bowls &middot; about 50 min</div>
+  </div>
+
+  <div class="machine">
+    <div class="machine-top"><span>Order here</span><span>券売機</span></div>
+    <div class="screen">
+      <div><div class="lbl">Bowls</div><div class="big" id="total">04</div></div>
+      <div class="right"><div id="scr-c">CHICKEN 02</div><div id="scr-v">QUORN&nbsp;&nbsp;&nbsp;02</div></div>
+    </div>
+
+    <div class="row">
+      <div class="name">Chicken <i>bowls</i><small>鶏 / seared thigh</small></div>
+      <div class="stepper">
+        <button class="btn minus" data-k="c" data-d="-1" aria-label="Fewer chicken bowls">&minus;</button>
+        <div class="count" id="cc">2</div>
+        <button class="btn red" data-k="c" data-d="1" aria-label="More chicken bowls">+</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="name">Veggie <i>bowls</i><small>野菜 / crisp Quorn</small></div>
+      <div class="stepper">
+        <button class="btn minus" data-k="v" data-d="-1" aria-label="Fewer veggie bowls">&minus;</button>
+        <div class="count" id="vc">2</div>
+        <button class="btn green" data-k="v" data-d="1" aria-label="More veggie bowls">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="receipt-box">
+    <div class="receipt" id="receipt"></div>
+  </div>
+
+  <h2>Method</h2>
+  <p class="hint">Tap a step to tick it off as you cook. Steps adjust to your order.</p>
+  <ol class="steps" id="steps">
+    <li>
+      <div class="num"></div>
+      <div class="step-body">
+        <h4>Build the broth</h4>
+        <p>Simmer the stock with the onion, garlic and ginger. Strain and discard the solids.</p>
+        <span class="mins">15&ndash;20 min</span>
+      </div>
+    </li>
+    <li>
+      <div class="num"></div>
+      <div class="step-body">
+        <h4>Season it</h4>
+        <p>Whisk in the miso, tahini, soy and sesame oil. Keep it below a rolling boil so the miso stays bright. Taste, adjust, keep warm.</p>
+        <span class="mins">2 min</span>
+      </div>
+    </li>
+    <li>
+      <div class="num"></div>
+      <div class="step-body">
+        <h4>Soft eggs</h4>
+        <p>Boil for 6&frac12; minutes, cool in cold water, peel and halve.</p>
+        <span class="mins">7 min</span>
+      </div>
+    </li>
+    <li data-for="c">
+      <div class="num"></div>
+      <div class="step-body">
+        <h4><span class="who c">Chicken</span> Sear it</h4>
+        <p>Fry the thighs in oil, 5&ndash;6 minutes a side, until deeply golden. Rest, then slice.</p>
+        <span class="mins">12 min</span>
+      </div>
+    </li>
+    <li data-for="v">
+      <div class="num"></div>
+      <div class="step-body">
+        <h4><span class="who v">Quorn</span> Crisp it</h4>
+        <p>Use a separate pan so the veggie bowls stay meat-free. Fry in oil for 6&ndash;8 minutes until golden at the edges.</p>
+        <span class="mins">8 min</span>
+      </div>
+    </li>
+    <li>
+      <div class="num"></div>
+      <div class="step-body">
+        <h4>Noodles &amp; veg</h4>
+        <p>Cook the noodles to the packet instructions. For the last minute, add the pak choi, sweetcorn and carrot to the same water. Drain well and divide between bowls.</p>
+        <span class="mins">4 min</span>
+      </div>
+    </li>
+    <li>
+      <div class="num"></div>
+      <div class="step-body">
+        <h4>Build the bowls</h4>
+        <p>Ladle over the hot broth. Add the egg and spring onions, then the chicken or Quorn on top.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="memo">
+    <b>Memo</b>
+    <ul>
+      <li>Soupier? Add stock but keep the miso and soy as written.</li>
+      <li>Quorn is milder than chicken. A splash of soy or a spoon of gochujang in its bowls helps.</li>
+      <li>Quorn usually contains egg white, and some ramen noodles contain egg. Check packets for strict vegans.</li>
+      <li>Chilli oil on the side for anyone who wants heat.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var s = { c: 2, v: 2 };
+  var $ = function (id) { return document.getElementById(id); };
+
+  var FR = { 0: '', 0.25: '¼', 0.5: '½', 0.75: '¾' };
+  function frac(x) {
+    var q = Math.round(x * 4) / 4;
+    var w = Math.floor(q), r = q - w;
+    if (q === 0) q = 0.25, w = 0, r = 0.25;
+    return (w ? String(w) : '') + FR[r];
+  }
+  function g(x) { return Math.round(x / 5) * 5 + ' g'; }
+  function ml(x) {
+    x = Math.round(x / 50) * 50;
+    return x >= 1000 ? (x / 1000).toFixed(2).replace(/0$/, '').replace(/\.0$/, '') + ' l' : x + ' ml';
+  }
+  function tbsp(x) { return frac(x) + ' tbsp'; }
+  function item(name, note, q) {
+    return '<div class="item"><span class="n">' + name + (note ? ' <em>' + note + '</em>' : '') +
+      '</span><span class="lead"></span><span class="q">' + q + '</span></div>';
+  }
+  function sec(title, chip, rows) {
+    return '<div class="sec"><h3>' + (chip ? '<span class="chip ' + chip + '"></span>' : '') + title + '</h3>' + rows + '</div>';
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  function render() {
+    var c = s.c, v = s.v, n = c + v;
+    $('cc').textContent = c;
+    $('vc').textContent = v;
+    $('total').textContent = pad(n);
+    $('scr-c').textContent = 'CHICKEN ' + pad(c);
+    $('scr-v').innerHTML = 'QUORN&nbsp;&nbsp;&nbsp;' + pad(v);
+
+    var broth =
+      item('Vegetable stock', '', ml(375 * n)) +
+      item('Onion', 'roughly chopped', Math.ceil(n / 4)) +
+      item('Garlic cloves', 'crushed', n) +
+      item('Fresh ginger', 'sliced', (5 * n) + ' g') +
+      item('White miso paste', '', tbsp(n)) +
+      item('Tahini', '', tbsp(0.25 * n)) +
+      item('Soy sauce', '', tbsp(0.75 * n)) +
+      item('Toasted sesame oil', '', tbsp(0.25 * n));
+
+    var bowls =
+      item('Fresh ramen noodles', '', g(100 * n)) +
+      item('Pak choi', 'halved', Math.ceil(n / 2)) +
+      item('Sweetcorn', '', g(25 * n)) +
+      item('Carrot', 'thin matchsticks', Math.ceil(n / 4)) +
+      item('Large eggs', '', n) +
+      item('Spring onions', 'sliced', n);
+
+    var html =
+      '<div class="r-head"><b>Miso Ramen</b><span>' + n + (n === 1 ? ' bowl' : ' bowls') + ' &middot; shopping &amp; prep</span></div>' +
+      sec('Broth', '', broth) + sec('Bowls', '', bowls);
+    if (c) html += sec('Chicken &times; ' + c, 'c',
+      item('Boneless chicken thighs', '', g(75 * c)) + item('Veg oil', 'for frying', tbsp(Math.ceil(c / 4))));
+    if (v) html += sec('Veggie &times; ' + v, 'v',
+      item('Quorn pieces', '', g(75 * v)) + item('Veg oil', 'for frying', tbsp(Math.ceil(v / 4))));
+    html += '<div class="r-foot"><span>Total bowls</span><span>' + n + '</span></div><div class="barcode"></div>';
+    $('receipt').innerHTML = html;
+
+    var lis = document.querySelectorAll('#steps li');
+    for (var i = 0; i < lis.length; i++) {
+      var f = lis[i].getAttribute('data-for');
+      lis[i].hidden = !!f && s[f] === 0;
+    }
+  }
+
+  document.querySelectorAll('.btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-k'), d = parseInt(b.getAttribute('data-d'), 10);
+      var o = k === 'c' ? 'v' : 'c';
+      var nv = s[k] + d;
+      if (nv < 0 || nv > 12) return;
+      s[k] = nv;
+      if (s.c + s.v === 0) s[o] = 1;
+      render();
+    });
+  });
+
+  $('steps').addEventListener('click', function (e) {
+    var li = e.target.closest('li');
+    if (li) li.classList.toggle('done');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
